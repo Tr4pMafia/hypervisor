@@ -50,16 +50,6 @@ extern "C" void exit_handler_entry(void) noexcept;
 // Global Variables
 // -----------------------------------------------------------------------------
 
-namespace bfvmm::x64
-{
-gsl::not_null<cr3::mmap *>
-mmap()
-{
-    static cr3::mmap s_mmap;
-    return &s_mmap;
-}
-}
-
 static bfn::once_flag g_once_flag{};
 static ::intel_x64::cr0::value_type g_cr0{};
 static ::intel_x64::cr3::value_type g_cr3{};
@@ -123,6 +113,7 @@ setup()
     if (extended_feature_flags::subleaf0::ebx::smap::is_enabled()) {
         g_cr4 |= ::intel_x64::cr4::smap_enable_bit::mask;
     }
+    bfdebug_nhex(0, "setup cr3", mmap()->cr3());
 }
 
 // -----------------------------------------------------------------------------

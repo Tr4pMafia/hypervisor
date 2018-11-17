@@ -1,0 +1,50 @@
+diff --git a/bfvmm/include/hve/arch/intel_x64/exit_handler.h b/bfvmm/include/hve/arch/intel_x64/exit_handler.h
+index 275c5633..287b7a83 100755
+--- a/bfvmm/include/hve/arch/intel_x64/exit_handler.h
++++ b/bfvmm/include/hve/arch/intel_x64/exit_handler.h
+@@ -54,6 +54,16 @@
+ #pragma warning(disable : 4251)
+ #endif
+ 
++#include "../../../memory_manager/arch/x64/cr3.h"
++namespace bfvmm::x64
++{
++static cr3::mmap s_mmap;    
++gsl::not_null<cr3::mmap *>
++mmap()
++{
++    return &s_mmap;
++}
++}
+ // -----------------------------------------------------------------------------
+ // Handler Types
+ // -----------------------------------------------------------------------------
+diff --git a/bfvmm/src/hve/arch/intel_x64/exit_handler.cpp b/bfvmm/src/hve/arch/intel_x64/exit_handler.cpp
+index b98638a7..b679c4dc 100755
+--- a/bfvmm/src/hve/arch/intel_x64/exit_handler.cpp
++++ b/bfvmm/src/hve/arch/intel_x64/exit_handler.cpp
+@@ -50,16 +50,6 @@ extern "C" void exit_handler_entry(void) noexcept;
+ // Global Variables
+ // -----------------------------------------------------------------------------
+ 
+-namespace bfvmm::x64
+-{
+-gsl::not_null<cr3::mmap *>
+-mmap()
+-{
+-    static cr3::mmap s_mmap;
+-    return &s_mmap;
+-}
+-}
+-
+ static bfn::once_flag g_once_flag{};
+ static ::intel_x64::cr0::value_type g_cr0{};
+ static ::intel_x64::cr3::value_type g_cr3{};
+@@ -123,6 +113,7 @@ setup()
+     if (extended_feature_flags::subleaf0::ebx::smap::is_enabled()) {
+         g_cr4 |= ::intel_x64::cr4::smap_enable_bit::mask;
+     }
++    bfdebug_nhex(0, "setup cr3", mmap()->cr3());
+ }
+ 
+ // -----------------------------------------------------------------------------

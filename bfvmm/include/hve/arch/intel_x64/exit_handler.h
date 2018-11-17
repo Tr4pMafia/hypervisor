@@ -54,6 +54,16 @@
 #pragma warning(disable : 4251)
 #endif
 
+#include "../../../memory_manager/arch/x64/cr3.h"
+namespace bfvmm::x64
+{
+static cr3::mmap s_mmap;    
+gsl::not_null<cr3::mmap *>
+mmap()
+{
+    return &s_mmap;
+}
+}
 // -----------------------------------------------------------------------------
 // Handler Types
 // -----------------------------------------------------------------------------
